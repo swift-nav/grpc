@@ -79,6 +79,10 @@ class ThreadInternalsPosix : public internal::ThreadInternalsInterface {
                  0);
     }
 
+    // Temporary workaround for https://github.com/grpc/grpc/issues/14587.
+    const size_t desired_stack_size = 524288 * 20;
+    GPR_ASSERT(pthread_attr_setstacksize(&attr , desired_stack_size) == 0);
+
     *success =
         (pthread_create(&pthread_id_, &attr,
                         [](void* v) -> void* {
