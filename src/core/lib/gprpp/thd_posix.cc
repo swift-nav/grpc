@@ -103,6 +103,12 @@ class ThreadInternalsPosix : public internal::ThreadInternalsInterface {
       size_t stack_size = MinValidStackSize(options.stack_size());
       GPR_ASSERT(pthread_attr_setstacksize(&attr, stack_size) == 0);
     }
+#if defined(__APPLE__)
+    else {
+      size_t stack_size = 1952 * 1024;
+      GPR_ASSERT(pthread_attr_setstacksize(&attr, stack_size) == 0);
+    }
+#endif
 
     *success =
         (pthread_create(&pthread_id_, &attr,
