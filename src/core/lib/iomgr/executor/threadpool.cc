@@ -64,9 +64,9 @@ void ThreadPool::SharedThreadPoolConstructor() {
 
 size_t ThreadPool::DefaultStackSize() {
 #if defined(__ANDROID__) || defined(__APPLE__)
-  return 2*1952 * 1024;
+  return 1952 * 1024;
 #else
-  return 2*64 * 1024;
+  return 64 * 1024;
 #endif
 }
 
