@@ -251,7 +251,7 @@ ChannelArguments ServerBuilder::BuildChannelArgs() {
   return args;
 }
 
-std::unique_ptr<grpc::Server> ServerBuilder::BuildAndStart() {
+std::unique_ptr<grpc::Server> ServerBuilder::BuildAndStart(const std::size_t stack_size_limit) {
   ChannelArguments args = BuildChannelArgs();
 
   // == Determine if the server has any syncrhonous methods ==
@@ -418,7 +418,7 @@ std::unique_ptr<grpc::Server> ServerBuilder::BuildAndStart() {
   }
 
   auto cqs_data = cqs_.empty() ? nullptr : &cqs_[0];
-  server->Start(cqs_data, cqs_.size());
+  server->Start(cqs_data, cqs_.size(), stack_size_limit);
 
   for (const auto& value : plugins_) {
     value->Finish(initializer);

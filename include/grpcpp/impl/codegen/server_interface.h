@@ -153,7 +153,7 @@ class ServerInterface : public internal::CallHook {
   /// caller is required to keep all completion queues live until the server is
   /// destroyed.
   /// \param num_cqs How many completion queues does \a cqs hold.
-  virtual void Start(grpc::ServerCompletionQueue** cqs, size_t num_cqs) = 0;
+  virtual void Start(grpc::ServerCompletionQueue** cqs, size_t num_cqs, const std::size_t stack_size_limit = 0) = 0;
 
   virtual void ShutdownInternal(gpr_timespec deadline) = 0;
 

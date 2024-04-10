@@ -27,14 +27,19 @@
 
 namespace grpc {
 
-ThreadManager::WorkerThread::WorkerThread(ThreadManager* thd_mgr)
+ThreadManager::WorkerThread::WorkerThread(ThreadManager* thd_mgr,
+                                          const std::size_t stack_size_limit)
     : thd_mgr_(thd_mgr) {
   // Make thread creation exclusive with respect to its join happening in
   // ~WorkerThread().
+  grpc_core::Thread::Options options;
+  if (stack_size_limit != 0) {
+    options.set_stack_size(stack_size_limit);
+  }
   thd_ = grpc_core::Thread(
       "grpcpp_sync_server",
       [](void* th) { static_cast<ThreadManager::WorkerThread*>(th)->Run(); },
-      this, &created_);
+      this, &created_, options);
   if (!created_) {
     gpr_log(GPR_ERROR, "Could not create grpc_sync_server worker-thread");
   }
@@ -121,7 +126,7 @@ void ThreadManager::CleanupCompletedThreads() {
   for (auto thd : completed_threads) delete thd;
 }
 
-void ThreadManager::Initialize() {
+void ThreadManager::Initialize(const std::size_t stack_size_limit) {
   if (!thread_quota_->Reserve(min_pollers_)) {
     gpr_log(GPR_ERROR,
             "No thread quota available to even create the minimum required "
@@ -138,7 +143,7 @@ void ThreadManager::Initialize() {
   }
 
   for (int i = 0; i < min_pollers_; i++) {
-    WorkerThread* worker = new WorkerThread(this);
+    WorkerThread* worker = new WorkerThread(this, stack_size_limit);
     GPR_ASSERT(worker->created());  // Must be able to create the minimum
     worker->Start();
   }

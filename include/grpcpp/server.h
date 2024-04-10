@@ -192,7 +192,7 @@ class Server : public ServerInterface, private GrpcLibraryCodegen {
   /// caller is required to keep all completion queues live until the server is
   /// destroyed.
   /// \param num_cqs How many completion queues does \a cqs hold.
-  void Start(ServerCompletionQueue** cqs, size_t num_cqs) override;
+  void Start(ServerCompletionQueue** cqs, size_t num_cqs, const std::size_t stack_size_limit = 0) override;
 
   grpc_server* server() override { return server_; }
 

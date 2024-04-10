@@ -73,7 +73,7 @@ class ThreadInternalsPosix : public internal::ThreadInternalsInterface {
  public:
   ThreadInternalsPosix(const char* thd_name, void (*thd_body)(void* arg),
                        void* arg, bool* success, const Thread::Options& options)
-      : started_(false) {
+      : started_(false), stack_size_(0) {
     gpr_mu_init(&mu_);
     gpr_cv_init(&ready_);
     pthread_attr_t attr;
@@ -105,10 +105,17 @@ class ThreadInternalsPosix : public internal::ThreadInternalsInterface {
       GPR_ASSERT(pthread_attr_setstacksize(&attr, stack_size) == 0);
     }
 
+    pthread_attr_getstacksize(&attr, &stack_size_);
+    printf("Stack size is: %zu\n", stack_size_);
+
     *success = (pthread_create(
                     &pthread_id_, &attr,
                     [](void* v) -> void* {
                       thd_arg arg = *static_cast<thd_arg*>(v);
+
+                      std::size_t thread_stack_size = arg.thread->stack_size_;
+                      printf("Stack size after start: %zu\n", thread_stack_size);
+
                       free(v);
                       if (arg.name != nullptr) {
 #if GPR_APPLE_PTHREAD_NAME
@@ -175,6 +182,7 @@ class ThreadInternalsPosix : public internal::ThreadInternalsInterface {
   gpr_cv ready_;
   bool started_;
   pthread_t pthread_id_;
+  size_t stack_size_;
 };
 
 }  // namespace

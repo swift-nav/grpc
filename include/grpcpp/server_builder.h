@@ -100,7 +100,7 @@ class ServerBuilder {
   ///     AddCompletionQueue
   ///
   ///  Will return a nullptr on errors.
-  virtual std::unique_ptr<grpc::Server> BuildAndStart();
+  virtual std::unique_ptr<grpc::Server> BuildAndStart(const std::size_t stack_size_limit = 0);
 
   /// Register a service. This call does not take ownership of the service.
   /// The service must exist for the lifetime of the \a Server instance returned

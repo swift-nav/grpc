@@ -832,9 +832,9 @@ class Server::SyncRequestThreadManager : public grpc::ThreadManager {
     }
   }
 
-  void Start() {
+  void Start(const std::size_t stack_size_limit = 0) {
     if (has_sync_method_) {
-      Initialize();  // ThreadManager's Initialize()
+      Initialize(stack_size_limit);  // ThreadManager's Initialize()
     }
   }
 
@@ -1115,7 +1115,7 @@ void Server::UnrefAndWaitLocked() {
   }
 }
 
-void Server::Start(grpc::ServerCompletionQueue** cqs, size_t num_cqs) {
+void Server::Start(grpc::ServerCompletionQueue** cqs, size_t num_cqs, const std::size_t stack_size_limit) {
   GPR_ASSERT(!started_);
   global_callbacks_->PreServerStart(this);
   started_ = true;
@@ -1203,7 +1203,7 @@ void Server::Start(grpc::ServerCompletionQueue** cqs, size_t num_cqs) {
   }
 
   for (const auto& value : sync_req_mgrs_) {
-    value->Start();
+    value->Start(stack_size_limit);
   }
 
   if (default_health_check_service_impl != nullptr) {

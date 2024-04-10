@@ -38,7 +38,7 @@ class ThreadManager {
   virtual ~ThreadManager();
 
   // Initializes and Starts the Rpc Manager threads
-  void Initialize();
+  void Initialize(const std::size_t stack_size_limit = 0);
 
   // The return type of PollForWork() function
   enum WorkStatus { WORK_FOUND, SHUTDOWN, TIMEOUT };
@@ -120,7 +120,8 @@ class ThreadManager {
   // not be called (and the need for this WorkerThread class is eliminated)
   class WorkerThread {
    public:
-    explicit WorkerThread(ThreadManager* thd_mgr);
+    explicit WorkerThread(ThreadManager* thd_mgr,
+                          const std::size_t stack_size_limit = 0);
     ~WorkerThread();
 
     bool created() const { return created_; }
