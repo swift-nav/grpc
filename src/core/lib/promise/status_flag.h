@@ -33,11 +33,17 @@ struct Failure {
   friend void AbslStringify(Sink& sink, Failure) {
     sink.Append("failed");
   }
+  friend std::ostream& operator<<(std::ostream& os, Failure) {
+    return os << "failed";
+  }
 };
 struct Success {
   template <typename Sink>
   friend void AbslStringify(Sink& sink, Success) {
     sink.Append("ok");
+  }
+  friend std::ostream& operator<<(std::ostream& os, Success) {
+    return os << "ok";
   }
 };
 
@@ -109,6 +115,10 @@ class StatusFlag {
     } else {
       sink.Append("failed");
     }
+  }
+
+  friend std::ostream& operator<<(std::ostream& os, StatusFlag flag) {
+    return os << (flag.ok() ? "ok" : "failed");
   }
 
  private:
